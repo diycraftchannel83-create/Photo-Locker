@@ -66,8 +66,10 @@ fun PhotoLockerHome() {
                 var importedCount = 0
                 var failedCount = 0
                 uris.forEach { uri ->
+                    var importedFile: java.io.File? = null
                     try {
                         val media = storage.importUri(uri)
+                        importedFile = media.encryptedFile
                         val kind = if (media.mimeType?.startsWith("video/") == true) "VIDEO" else "PHOTO"
                         val originalSize = querySize(context, uri) ?: media.byteSize
                         db.vaultMediaDao().insert(
@@ -83,6 +85,7 @@ fun PhotoLockerHome() {
                         )
                         importedCount++
                     } catch (_: Exception) {
+                        importedFile?.delete() // Keep file and database metadata consistent.
                         failedCount++
                     }
                 }
