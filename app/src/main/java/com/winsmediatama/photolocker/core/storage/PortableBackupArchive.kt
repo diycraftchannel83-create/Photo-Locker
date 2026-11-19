@@ -148,6 +148,55 @@ class PortableBackupArchive(context: Context) {
         } finally { zipTemp.delete() }
     }
 
+
+    /** Validates first, then extracts payloads into app-private staging files with checksum verification. */
+    fun extractVerified(source: File, recoveryKey: String, outputDirectory: File): Pair<ParsedManifest, Map<String, File>> {
+        val parsed = inspectEncrypted(source, recoveryKey)
+        outputDirectory.mkdirs()
+        val zipTemp = File(staging, "extract-${UUID.randomUUID()}.zip")
+        val extracted = linkedMapOf<String, File>()
+        try {
+            FileInputStream(source).use { input -> FileOutputStream(zipTemp).use { output -> PortableBackupCrypto.decrypt(input, output, recoveryKey) } }
+            val expected = parsed.media.associateBy { it.archivePath }
+            ZipInputStream(FileInputStream(zipTemp)).use { zip ->
+                var entry = zip.nextEntry
+                while (entry != null) {
+                    if (!entry.isDirectory && entry.name != "manifest.json") {
+                        val record = expected[entry.name] ?: error("Unrecognized payload entry")
+                        val outFile = File(outputDirectory, "${UUID.randomUUID()}.restoretmp")
+                        val digest = MessageDigest.getInstance("SHA-256")
+                        var size = 0L
+                        try {
+                            FileOutputStream(outFile).use { out ->
+                                val buffer = ByteArray(BUFFER_SIZE)
+                                while (true) {
+                                    val n = zip.read(buffer)
+                                    if (n < 0) break
+                                    size += n
+                                    require(size <= MAX_MEDIA_BYTES) { "Payload too large" }
+                                    digest.update(buffer, 0, n)
+                                    out.write(buffer, 0, n)
+                                }
+                            }
+                            require(size == record.originalSizeBytes && digest.digest().toHex().equals(record.sha256, true)) { "Payload integrity mismatch" }
+                            extracted[entry.name] = outFile
+                        } catch (e: Exception) {
+                            outFile.delete()
+                            throw e
+                        }
+                    }
+                    zip.closeEntry()
+                    entry = zip.nextEntry
+                }
+            }
+            require(extracted.size == parsed.media.size) { "Some payloads were not extracted" }
+            return parsed to extracted
+        } catch (e: Exception) {
+            extracted.values.forEach { it.delete() }
+            throw e
+        } finally { zipTemp.delete() }
+    }
+
     private fun ZipInputStream.readBounded(maxBytes: Int): ByteArray {
         val out = java.io.ByteArrayOutputStream()
         val buffer = ByteArray(BUFFER_SIZE)
