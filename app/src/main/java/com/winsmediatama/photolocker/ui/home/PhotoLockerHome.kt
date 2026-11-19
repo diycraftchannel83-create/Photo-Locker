@@ -60,6 +60,7 @@ fun PhotoLockerHome() {
     val photoCount by db.vaultMediaDao().observePhotoCount().collectAsStateWithLifecycle(initialValue = 0)
     val videoCount by db.vaultMediaDao().observeVideoCount().collectAsStateWithLifecycle(initialValue = 0)
     var importStatus by remember { mutableStateOf("") }
+    var showGallery by remember { mutableStateOf(false) }
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(50)) { uris: List<Uri> ->
         if (uris.isNotEmpty()) {
