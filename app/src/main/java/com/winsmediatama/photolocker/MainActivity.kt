@@ -5,7 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.WindowManager
 import com.winsmediatama.photolocker.core.storage.VaultStorageManager
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
@@ -15,7 +15,7 @@ import com.winsmediatama.photolocker.ui.auth.PinGate
 import com.winsmediatama.photolocker.ui.theme.PhotoLockerTheme
 import com.winsmediatama.photolocker.ui.home.PhotoLockerHome
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     private var unlocked by mutableStateOf(false)
     private val lockHandler = Handler(Looper.getMainLooper())
     private val delayedLock = Runnable { unlocked = false }
