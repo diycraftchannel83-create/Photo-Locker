@@ -51,6 +51,9 @@ interface VaultMediaDao {
     @Query("SELECT COUNT(*) FROM vault_media WHERE albumId = :albumId AND deletedAtMillis IS NULL")
     fun observeAlbumCount(albumId: String): Flow<Int>
 
+    @Query("UPDATE vault_media SET albumId = NULL WHERE albumId = :albumId")
+    suspend fun unassignAlbumMedia(albumId: String)
+
     @Query("DELETE FROM vault_albums WHERE albumId = :albumId")
     suspend fun deleteAlbum(albumId: String)
 }
