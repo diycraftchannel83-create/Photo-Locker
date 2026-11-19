@@ -18,7 +18,14 @@ abstract class PhotoLockerDatabase : RoomDatabase() {
             }
         }
 
-        private val MIGRATION_2_3 = object : Migration(2, 3) {\n            override fun migrate(database: SupportSQLiteDatabase) {\n                database.execSQL(\"ALTER TABLE vault_media ADD COLUMN albumId TEXT\")\n                database.execSQL(\"CREATE TABLE IF NOT EXISTS vault_albums (albumId TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, createdAtMillis INTEGER NOT NULL)\")\n            }\n        }\n\n        @Volatile private var INSTANCE: PhotoLockerDatabase? = null
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE vault_media ADD COLUMN albumId TEXT")
+                database.execSQL("CREATE TABLE IF NOT EXISTS vault_albums (albumId TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, createdAtMillis INTEGER NOT NULL)")
+            }
+        }
+
+        @Volatile private var INSTANCE: PhotoLockerDatabase? = null
 
         fun getInstance(context: Context): PhotoLockerDatabase = INSTANCE ?: synchronized(this) {
             INSTANCE ?: Room.databaseBuilder(
