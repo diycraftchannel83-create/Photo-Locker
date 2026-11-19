@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.winsmediatama.photolocker.MainActivity
 import com.winsmediatama.photolocker.core.storage.VaultStorageManager
 import com.winsmediatama.photolocker.data.database.PhotoLockerDatabase
 import com.winsmediatama.photolocker.data.database.VaultMediaEntity
@@ -140,7 +141,10 @@ fun PhotoLockerHome() {
             }
         }
 
-        Button(onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }, modifier = Modifier.fillMaxWidth().height(54.dp)) {
+        Button(onClick = {
+            (context as? MainActivity)?.markSystemPickerLaunched()
+            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+        }, modifier = Modifier.fillMaxWidth().height(54.dp)) {
             Icon(Icons.Outlined.PhotoLibrary, contentDescription = null)
             Text("  Import media")
         }
