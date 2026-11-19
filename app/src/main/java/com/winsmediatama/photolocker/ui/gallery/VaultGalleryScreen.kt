@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -79,6 +80,9 @@ fun VaultGalleryScreen(onBack: () -> Unit) {
                             Column(Modifier.weight(1f)) {
                                 Text(item.displayName, style = MaterialTheme.typography.titleSmall, maxLines = 1)
                                 Text("${item.mediaKind.lowercase()} • encrypted", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+                            }
+                            IconButton(onClick = { dao.moveToTrash(item.vaultId, System.currentTimeMillis()) }) {
+                                Icon(Icons.Outlined.Delete, contentDescription = "Move to trash", tint = MaterialTheme.colorScheme.error)
                             }
                             Button(onClick = {
                                 try {
