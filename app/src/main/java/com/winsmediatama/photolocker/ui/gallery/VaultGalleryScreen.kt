@@ -114,7 +114,7 @@ fun VaultGalleryScreen(onBack: () -> Unit) {
                     if (item.mediaKind == "VIDEO") {
                         VideoPreview(tempFile)
                     } else {
-                        val bitmap = remember(tempFile) { BitmapFactory.decodeFile(tempFile.absolutePath) }
+                        val bitmap = remember(tempFile) { decodePreviewBitmap(tempFile) }
                         if (bitmap != null) {
                             Image(bitmap.asImageBitmap(), contentDescription = item.displayName, modifier = Modifier.fillMaxWidth(), contentScale = ContentScale.Fit)
                         } else {
@@ -130,6 +130,15 @@ fun VaultGalleryScreen(onBack: () -> Unit) {
         }
     }
 }
+
+private fun decodePreviewBitmap(file: File) = runCatching {
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeFile(file.absolutePath, bounds)
+    val maxDimension = 1600
+    var sample = 1
+    while (bounds.outWidth / sample > maxDimension || bounds.outHeight / sample > maxDimension) sample *= 2
+    BitmapFactory.decodeFile(file.absolutePath, BitmapFactory.Options().apply { inSampleSize = sample.coerceAtLeast(1) })
+}.getOrNull()
 
 @Composable
 private fun VideoPreview(file: File) {
