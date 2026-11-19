@@ -148,6 +148,7 @@ fun PhotoLockerHome() {
             Icon(Icons.Outlined.PhotoLibrary, contentDescription = null)
             Text("  Import media")
         }
+        Text("Import creates an encrypted copy. Your original media stays in the gallery unless you delete it yourself.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
         if (importStatus.isNotBlank()) Text(importStatus, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         Button(onClick = { showGallery = true }, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Outlined.Folder, contentDescription = null)
