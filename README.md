@@ -39,7 +39,7 @@ Authentication, encrypted storage, media import, vault gallery, albums, viewer, 
 - GitHub Actions debug build workflow
 - Portable backup crypto envelope using a random recovery key and HKDF-SHA256
 - ZIP archive writer for media streams and JSON manifest, encrypted before export
-- Backup inspection with format and entry-path checks
+- Recovery Key generation, display/hide and clipboard copy UI\n- Encrypted backup export through Android Storage Access Framework\n- Backup verification: authenticated decrypt, manifest/path checks, SHA-256 and payload-size validation\n- ZIP entry, media-count, manifest, individual file and total expanded-size limits
 
 ## Current limitations
 - Early development; production security audit not performed.
