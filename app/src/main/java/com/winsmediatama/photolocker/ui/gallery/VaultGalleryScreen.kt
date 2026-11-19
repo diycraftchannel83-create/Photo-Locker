@@ -61,7 +61,7 @@ fun VaultGalleryScreen(onBack: () -> Unit) {
     val albums by dao.observeAlbums().collectAsStateWithLifecycle(initialValue = emptyList())
     var viewing by remember { mutableStateOf<Pair<VaultMediaEntity, File>?>(null) }
     var message by remember { mutableStateOf("") }
-    var assigningMedia by remember { mutableStateOf<VaultMediaEntity?>(null) 
+    var assigningMedia by remember { mutableStateOf<VaultMediaEntity?>(null) }
 
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
