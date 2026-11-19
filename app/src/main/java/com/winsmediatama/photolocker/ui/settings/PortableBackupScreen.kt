@@ -170,7 +170,8 @@ fun PortableBackupScreen(onBack: () -> Unit) {
                                         val newId = UUID.randomUUID().toString()
                                         val encryptedName = "$newId.vault"
                                         val encryptedFile = File(vaultDir, encryptedName)
-                                        committedFiles.add(encryptedFile)\n                                        FileInputStream(payloads.getValue(media.archivePath)).use { input ->
+                                        committedFiles.add(encryptedFile)
+                                        FileInputStream(payloads.getValue(media.archivePath)).use { input ->
                                             FileOutputStream(encryptedFile).use { output -> crypto.encrypt(input, output) }
                                         }
                                         VaultMediaEntity(
