@@ -34,7 +34,7 @@ import com.winsmediatama.photolocker.core.security.PinSecurityManager
 import com.winsmediatama.photolocker.core.storage.VaultStorageManager
 
 @Composable
-fun SecuritySettingsScreen(onBack: () -> Unit) {
+fun SecuritySettingsScreen(onBack: () -> Unit, onOpenBackup: () -> Unit) {
     val context = LocalContext.current
     val security = remember(context) { PinSecurityManager(context) }
     val storage = remember(context) { VaultStorageManager(context) }
@@ -80,7 +80,14 @@ fun SecuritySettingsScreen(onBack: () -> Unit) {
                 Button(onClick = { storage.clearDecryptedCache(); feedback = "Temporary preview cache cleared." }, modifier = Modifier.fillMaxWidth()) { Text("Clear preview cache") }
             }
         }
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Encrypted backup", style = MaterialTheme.typography.titleMedium)
+                Text("Export encrypted media and albums with a portable Recovery Key. You can verify a backup file, but restore is still under development.", style = MaterialTheme.typography.bodySmall)
+                Button(onClick = onOpenBackup, modifier = Modifier.fillMaxWidth()) { Text("Backup & Recovery Key") }
+            }
+        }
         if (feedback.isNotBlank()) Text(feedback, color = if (feedback.contains("successfully") || feedback.contains("cleared")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
-        Text("Photo Locker stores vault media encrypted in app-private storage. Recovery and backup options are not available yet.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+        Text("Photo Locker stores vault media encrypted in app-private storage. Portable encrypted backup export and backup verification are available; restore is still in development.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
     }
 }

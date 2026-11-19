@@ -54,6 +54,7 @@ import com.winsmediatama.photolocker.ui.gallery.VaultGalleryScreen
 import com.winsmediatama.photolocker.ui.gallery.VaultTrashScreen
 import com.winsmediatama.photolocker.ui.gallery.VaultAlbumManagerScreen
 import com.winsmediatama.photolocker.ui.settings.SecuritySettingsScreen
+import com.winsmediatama.photolocker.ui.settings.PortableBackupScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,6 +72,7 @@ fun PhotoLockerHome() {
     var showTrash by remember { mutableStateOf(false) }
     var showAlbums by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
+    var showPortableBackup by remember { mutableStateOf(false) }
     var selectedAlbum by remember { mutableStateOf<VaultAlbumEntity?>(null) }
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(50)) { uris: List<Uri> ->
@@ -120,7 +122,11 @@ fun PhotoLockerHome() {
         return
     }
     if (showSettings) {
-        SecuritySettingsScreen(onBack = { showSettings = false })
+        SecuritySettingsScreen(onBack = { showSettings = false }, onOpenBackup = { showSettings = false; showPortableBackup = true })
+        return
+    }
+    if (showPortableBackup) {
+        PortableBackupScreen(onBack = { showPortableBackup = false; showSettings = true })
         return
     }
 

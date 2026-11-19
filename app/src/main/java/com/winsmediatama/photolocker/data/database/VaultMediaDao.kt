@@ -12,6 +12,12 @@ interface VaultMediaDao {
     @Query("SELECT * FROM vault_media WHERE deletedAtMillis IS NULL ORDER BY importedAtMillis DESC")
     fun observeAll(): Flow<List<VaultMediaEntity>>
 
+    @Query("SELECT * FROM vault_media ORDER BY importedAtMillis DESC")
+    suspend fun getAllForBackup(): List<VaultMediaEntity>
+
+    @Query("SELECT * FROM vault_albums ORDER BY name COLLATE NOCASE")
+    suspend fun getAllAlbumsForBackup(): List<VaultAlbumEntity>
+
     @Query("SELECT * FROM vault_media WHERE deletedAtMillis IS NOT NULL ORDER BY deletedAtMillis DESC")
     fun observeTrash(): Flow<List<VaultMediaEntity>>
 
@@ -23,6 +29,12 @@ interface VaultMediaDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(media: VaultMediaEntity)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAll(media: List<VaultMediaEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAlbums(albums: List<VaultAlbumEntity>)
 
     @Delete
     suspend fun delete(media: VaultMediaEntity)

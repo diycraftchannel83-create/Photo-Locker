@@ -3,16 +3,15 @@
 Private Photo & Video Vault for Android by Wins Mediatama.
 
 ## Project status
-Early implementation foundation. Security-first, local-first application.
+Development / in progress. Backup export and restore are implemented in the feature branch, but build verification, automated testing, device testing, and security audit are still pending. Not production-ready.
 
-## Planned stack
+## Stack
 - Kotlin + Jetpack Compose + Material 3
-- MVVM / Clean Architecture
 - Room
 - Android Keystore
 - AES-256-GCM authenticated encryption
 - Android Photo Picker
-- Media3 for video playback
+- Media3 video playback
 - BiometricPrompt
 
 ## Security principles
@@ -20,10 +19,7 @@ Early implementation foundation. Security-first, local-first application.
 - Keys are protected using Android Keystore.
 - No cloud upload is required for core functionality.
 - Original media is not deleted automatically during import.
-- Backup must be encrypted and recovery behavior documented.
-
-## Modules
-Authentication, encrypted storage, media import, vault gallery, albums, viewer, trash, settings, and encrypted backup.
+- Portable backups use a separate random 256-bit Recovery Key; the key is not stored in the app.
 
 ## Implemented foundation
 - Android Compose dashboard and first-launch PIN gate
@@ -36,14 +32,29 @@ Authentication, encrypted storage, media import, vault gallery, albums, viewer, 
 - Custom albums and album assignment
 - Security settings and decrypted preview-cache cleanup
 - Screenshot protection and background cache cleanup
-- GitHub Actions debug build workflow
-- Portable backup crypto envelope using a random recovery key and HKDF-SHA256
-- ZIP archive writer for media streams and JSON manifest, encrypted before export
-- Backup inspection with format and entry-path checks
 
-## Current limitations
-- Early development; production security audit not performed.
-- Build verification remains pending.
-- Backup engine is not yet wired to Room, SAF UI, recovery-key onboarding, or transactional restore.
-- Restore must stage and validate all payloads before committing vault files and metadata.
-- Import does not automatically delete original gallery files.
+## Portable backup/restore (feature branch)
+- Recovery Key generation, show/hide and copy UI
+- Encrypted backup export using Android Storage Access Framework
+- Authenticated portable encryption envelope using AES-GCM and HKDF-SHA256
+- Versioned ZIP archive and JSON manifest
+- SHA-256 and byte-size checks for every media payload
+- Path/duplicate-entry checks and archive limits
+- Backup verification
+- Restore picker and confirmation dialog
+- Validate archive before extracting payloads into app-private staging
+- Re-encrypt restored media using the receiving device's Android Keystore
+- Import media and albums in a Room transaction
+- Remap media/albums to fresh IDs; preserve album associations and trash status
+- Cleanup partial encrypted files on import/database failure
+
+## Remaining before production
+- Build and CI verification (not yet confirmed)
+- Automated tests for wrong key, corrupted backup, interruption, storage exhaustion, large media and malformed manifests
+- Manual device testing on supported Android versions
+- Crash-safe plaintext staging/cache cleanup review
+- Recovery Key onboarding/confirmation and progress/cancel UX
+- Full security audit
+
+## Build
+Debug build workflow: .github/workflows/android-build.yml
