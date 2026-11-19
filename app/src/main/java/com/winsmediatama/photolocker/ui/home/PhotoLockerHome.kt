@@ -48,6 +48,7 @@ import com.winsmediatama.photolocker.MainActivity
 import com.winsmediatama.photolocker.core.storage.VaultStorageManager
 import com.winsmediatama.photolocker.data.database.PhotoLockerDatabase
 import com.winsmediatama.photolocker.data.database.VaultMediaEntity
+import com.winsmediatama.photolocker.data.database.VaultAlbumEntity
 import com.winsmediatama.photolocker.ui.gallery.VaultGalleryScreen
 import com.winsmediatama.photolocker.ui.gallery.VaultTrashScreen
 import com.winsmediatama.photolocker.ui.gallery.VaultAlbumManagerScreen
@@ -67,6 +68,7 @@ fun PhotoLockerHome() {
     var showGallery by remember { mutableStateOf(false) }
     var showTrash by remember { mutableStateOf(false) }
     var showAlbums by remember { mutableStateOf(false) }
+    var selectedAlbum by remember { mutableStateOf<VaultAlbumEntity?>(null) }
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(50)) { uris: List<Uri> ->
         if (uris.isNotEmpty()) {
@@ -103,7 +105,7 @@ fun PhotoLockerHome() {
     }
 
     if (showGallery) {
-        VaultGalleryScreen(onBack = { showGallery = false })
+        VaultGalleryScreen(onBack = { showGallery = false; if (selectedAlbum != null) showAlbums = true; selectedAlbum = null }, albumId = selectedAlbum?.albumId, albumName = selectedAlbum?.name)
         return
     }
     if (showTrash) {
@@ -111,7 +113,7 @@ fun PhotoLockerHome() {
         return
     }
     if (showAlbums) {
-        VaultAlbumManagerScreen(onBack = { showAlbums = false })
+        VaultAlbumManagerScreen(onBack = { showAlbums = false }, onOpenAlbum = { album -> selectedAlbum = album; showGallery = true; showAlbums = false })
         return
     }
 
