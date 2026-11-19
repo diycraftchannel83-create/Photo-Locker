@@ -35,4 +35,22 @@ interface VaultMediaDao {
 
     @Query("SELECT * FROM vault_media WHERE vaultId = :id LIMIT 1")
     suspend fun getById(id: String): VaultMediaEntity?
+
+    @Query("SELECT * FROM vault_albums ORDER BY name COLLATE NOCASE")
+    fun observeAlbums(): Flow<List<VaultAlbumEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun createAlbum(album: VaultAlbumEntity)
+
+    @Query("UPDATE vault_media SET albumId = :albumId WHERE vaultId = :mediaId")
+    suspend fun assignToAlbum(mediaId: String, albumId: String?)
+
+    @Query("SELECT * FROM vault_media WHERE albumId = :albumId AND deletedAtMillis IS NULL ORDER BY importedAtMillis DESC")
+    fun observeAlbumMedia(albumId: String): Flow<List<VaultMediaEntity>>
+
+    @Query("SELECT COUNT(*) FROM vault_media WHERE albumId = :albumId AND deletedAtMillis IS NULL")
+    fun observeAlbumCount(albumId: String): Flow<Int>
+
+    @Query("DELETE FROM vault_albums WHERE albumId = :albumId")
+    suspend fun deleteAlbum(albumId: String)
 }
