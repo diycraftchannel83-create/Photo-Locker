@@ -120,6 +120,7 @@ class PortableBackupArchive(context: Context) {
                 val json = JSONObject(String(manifestBytes ?: throw IllegalArgumentException("Manifest missing"), Charsets.UTF_8))
                 require(json.optString("format") == "PhotoLockerPortable" && json.optInt("version") == 2) { "Unsupported backup format/version" }
                 val mediaList = mutableListOf<ManifestMedia>()
+                val sourceIds = mutableSetOf<String>()
                 val array = json.getJSONArray("media")
                 require(array.length() <= MAX_MEDIA_COUNT) { "Too many media records" }
                 val referenced = mutableSetOf<String>()
@@ -127,6 +128,11 @@ class PortableBackupArchive(context: Context) {
                     val m = array.getJSONObject(i); val path = m.getString("archivePath")
                     require(path.startsWith("media/") && path in payloadDigests && referenced.add(path)) { "Missing or duplicate payload reference" }
                     val size = m.getLong("originalSizeBytes"); val sha = m.getString("sha256")
+                    require(size >= 0 && size <= MAX_MEDIA_BYTES) { "Invalid media size" }
+                    require(sha.matches(Regex("^[a-fA-F0-9]{64}$"))) { "Invalid SHA-256 metadata" }
+                    require(m.getString("vaultId").isNotBlank() && sourceIds.add(m.getString("vaultId"))) { "Missing or duplicate media ID" }
+                    require(m.getString("displayName").isNotBlank() && m.getString("displayName").length <= MAX_DISPLAY_NAME) { "Invalid media display name" }
+                    require(m.getString("mediaKind") in VALID_MEDIA_KINDS) { "Unsupported media kind" }
                     val actual = payloadDigests[path]!!
                     require(size == actual.first && sha.equals(actual.second, ignoreCase = true)) { "Payload integrity check failed" }
                     mediaList.add(ManifestMedia(m.getString("vaultId"), path, m.getString("displayName"),
@@ -137,11 +143,16 @@ class PortableBackupArchive(context: Context) {
                 }
                 require(referenced.size == payloadDigests.size) { "Archive contains unreferenced payload data" }
                 val albumList = mutableListOf<AlbumRecord>()
+                val albumIds = mutableSetOf<String>()
                 val albumsJson = json.getJSONArray("albums")
                 require(albumsJson.length() <= MAX_ALBUM_COUNT) { "Too many albums" }
                 for (i in 0 until albumsJson.length()) {
                     val a = albumsJson.getJSONObject(i)
-                    albumList.add(AlbumRecord(a.getString("albumId"), a.getString("name"), a.getLong("createdAtMillis")))
+                    val id = a.getString("albumId")
+                    val name = a.getString("name")
+                    require(id.isNotBlank() && albumIds.add(id)) { "Missing or duplicate album ID" }
+                    require(name.isNotBlank() && name.length <= MAX_ALBUM_NAME) { "Invalid album name" }
+                    albumList.add(AlbumRecord(id, name, a.getLong("createdAtMillis")))
                 }
                 return ParsedManifest(mediaList, albumList)
             }
@@ -217,6 +228,9 @@ class PortableBackupArchive(context: Context) {
         private const val MAX_ALBUM_COUNT = 5_000
         private const val MAX_ENTRY_COUNT = MAX_MEDIA_COUNT + MAX_ALBUM_COUNT + 16
         private const val MAX_PATH_LENGTH = 512
+        private const val MAX_DISPLAY_NAME = 512
+        private const val MAX_ALBUM_NAME = 256
+        private val VALID_MEDIA_KINDS = setOf("PHOTO", "VIDEO")
         private const val MAX_MEDIA_BYTES = 10L * 1024 * 1024 * 1024
         private const val MAX_TOTAL_BYTES = 50L * 1024 * 1024 * 1024
     }
