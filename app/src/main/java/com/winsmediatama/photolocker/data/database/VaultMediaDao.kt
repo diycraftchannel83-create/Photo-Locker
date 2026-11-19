@@ -30,6 +30,12 @@ interface VaultMediaDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(media: VaultMediaEntity)
 
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAll(media: List<VaultMediaEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAlbums(albums: List<VaultAlbumEntity>)
+
     @Delete
     suspend fun delete(media: VaultMediaEntity)
 
