@@ -1,6 +1,9 @@
 package com.winsmediatama.photolocker.ui.auth
 
-import android.content.Context
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.fragment.app.FragmentActivity
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,11 +32,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.winsmediatama.photolocker.core.security.PinSecurityManager
 
 @Composable
-fun PinGate(context: Context, onUnlocked: () -> Unit) {
-    val security = remember(context) { PinSecurityManager(context) }
+fun PinGate(context: FragmentActivity, onUnlocked: () -> Unit) {
+    val security = remember(context) { com.winsmediatama.photolocker.core.security.PinSecurityManager(context) }
+    val biometricAvailable = remember(context) {
+        BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
+    }
     var setupMode by remember { mutableStateOf(!security.hasPin()) }
     var firstPin by remember { mutableStateOf("") }
     var pin by remember { mutableStateOf("") }
@@ -96,7 +101,35 @@ fun PinGate(context: Context, onUnlocked: () -> Unit) {
                     },
                     modifier = Modifier.fillMaxWidth().height(52.dp)
                 ) {
-                    Text(if (setupMode) "Continue" else "Unlock")
+                    Text(if (setupMode) "Continue" else "Unlock with PIN")
+                }
+                if (!setupMode && biometricAvailable) {
+                    Button(onClick = {
+                        val prompt = BiometricPrompt(
+                            context,
+                            ContextCompat.getMainExecutor(context),
+                            object : BiometricPrompt.AuthenticationCallback() {
+                                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                    onUnlocked()
+                                }
+                                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                                    message = errString.toString()
+                                }
+                                override fun onAuthenticationFailed() {
+                                    message = "Biometric not recognized. You can try again or use your PIN."
+                                }
+                            }
+                        )
+                        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+                            .setTitle("Unlock Photo Locker")
+                            .setSubtitle("Use your device biometric to access the private vault")
+                            .setNegativeButtonText("Use PIN")
+                            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                            .build()
+                        prompt.authenticate(promptInfo)
+                    }, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+                        Text("Unlock with biometrics")
+                    }
                 }
             }
         }
