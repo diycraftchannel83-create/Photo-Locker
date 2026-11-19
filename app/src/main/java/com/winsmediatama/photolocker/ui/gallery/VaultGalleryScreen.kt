@@ -53,11 +53,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import java.io.File
 
 @Composable
-fun VaultGalleryScreen(onBack: () -> Unit) {
+fun VaultGalleryScreen(onBack: () -> Unit, albumId: String? = null, albumName: String? = null) {
     val context = LocalContext.current
     val dao = remember(context) { PhotoLockerDatabase.getInstance(context).vaultMediaDao() }
     val storage = remember(context) { VaultStorageManager(context) }
-    val media by dao.observeAll().collectAsStateWithLifecycle(initialValue = emptyList())
+    val mediaFlow = remember(dao, albumId) { if (albumId == null) dao.observeAll() else dao.observeAlbumMedia(albumId) }
+    val media by mediaFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val albums by dao.observeAlbums().collectAsStateWithLifecycle(initialValue = emptyList())
     var viewing by remember { mutableStateOf<Pair<VaultMediaEntity, File>?>(null) }
     var message by remember { mutableStateOf("") }
@@ -67,7 +68,7 @@ fun VaultGalleryScreen(onBack: () -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, contentDescription = "Back") }
             Column {
-                Text("Private Vault", style = MaterialTheme.typography.titleLarge)
+                Text(albumName ?: "Private Vault", style = MaterialTheme.typography.titleLarge)
                 Text("${media.size} encrypted items", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
             }
         }
