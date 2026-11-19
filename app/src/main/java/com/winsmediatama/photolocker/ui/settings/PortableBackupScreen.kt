@@ -69,13 +69,17 @@ fun PortableBackupScreen(onBack: () -> Unit) {
                             PortableBackupArchive.AlbumRecord(it.albumId, it.name, it.createdAtMillis)
                         }
                         val records = mediaRows.map { row ->
-                            val encryptedFile = File(context.filesDir, "private_vault/${row.encryptedFileName}")
-                            val decrypted = storage.createDecryptedTempFile(encryptedFile)
-                            tempPlain += decrypted
                             PortableBackupArchive.MediaRecord(
                                 row.vaultId, row.displayName, row.mimeType, row.originalSizeBytes,
                                 row.importedAtMillis, row.mediaKind, row.deletedAtMillis, row.albumId,
-                                { FileInputStream(decrypted) }
+                                {
+                                    // Decrypt one item at a time as the archive requests it, avoiding
+                                    // a full-vault plaintext staging directory.
+                                    val encryptedFile = File(context.filesDir, "private_vault/${row.encryptedFileName}")
+                                    val decrypted = storage.createDecryptedTempFile(encryptedFile)
+                                    tempPlain += decrypted
+                                    FileInputStream(decrypted)
+                                }
                             )
                         }
                         archive.exportEncrypted(tempBackup, recoveryKey, records, albums)
