@@ -11,5 +11,6 @@ data class VaultMediaEntity(
     val mimeType: String?,
     val originalSizeBytes: Long,
     val importedAtMillis: Long,
-    val mediaKind: String
+    val mediaKind: String,
+    val deletedAtMillis: Long? = null
 )
