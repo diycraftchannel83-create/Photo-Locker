@@ -63,7 +63,7 @@ fun PortableBackupScreen(onBack: () -> Unit) {
     var message by remember { mutableStateOf("") }
     var inspectedCount by remember { mutableStateOf<Int?>(null) }
     var showRestoreConfirm by remember { mutableStateOf(false) }
-    var pendingRestoreUri by remember { mutableStateOf<Uri?>(null) 
+    var pendingRestoreUri by remember { mutableStateOf<Uri?>(null) }
 
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
         if (uri != null && recoveryKey.isNotBlank()) {
@@ -126,7 +126,7 @@ fun PortableBackupScreen(onBack: () -> Unit) {
                             ?: error("Cannot read selected file")
                         val parsed = archive.inspectEncrypted(temp, recoveryKey)
                         inspectedCount = parsed.media.size
-                        "Backup verified: ${parsed.media.size} media and ${parsed.albums.size} albums. Restore operation is not yet enabled."
+                        "Backup verified: ${parsed.media.size} media and ${parsed.albums.size} albums."
                     } catch (e: Exception) {
                         inspectedCount = null
                         "Verification failed: ${e.message ?: "Invalid backup or Recovery Key"}"
@@ -170,7 +170,7 @@ fun PortableBackupScreen(onBack: () -> Unit) {
                                         val newId = UUID.randomUUID().toString()
                                         val encryptedName = "$newId.vault"
                                         val encryptedFile = File(vaultDir, encryptedName)
-                                        FileInputStream(payloads.getValue(media.archivePath)).use { input ->
+                                        committedFiles.add(encryptedFile)\n                                        FileInputStream(payloads.getValue(media.archivePath)).use { input ->
                                             FileOutputStream(encryptedFile).use { output -> crypto.encrypt(input, output) }
                                         }
                                         committedFiles.add(encryptedFile)
