@@ -3,7 +3,6 @@
 Private Photo & Video Vault for Android by Wins Mediatama.
 
 ## Project status
-
 Early implementation foundation. Security-first, local-first application.
 
 ## Planned stack
@@ -25,4 +24,26 @@ Early implementation foundation. Security-first, local-first application.
 
 ## Modules
 Authentication, encrypted storage, media import, vault gallery, albums, viewer, trash, settings, and encrypted backup.
-\n## Implemented foundation\n- Android Compose dashboard and first-launch PIN gate\n- PIN verifier stored as a Keystore-encrypted blob; PIN itself is never stored\n- Temporary lockout after failed PIN attempts\n- Biometric unlock where strong biometrics are supported\n- AES-256-GCM encrypted file storage using an Android Keystore key\n- Android Photo Picker import for images and videos\n- Room metadata database for vault items\n- Private vault list with image preview and Media3 video playback\n- Trash, restore, and confirmed permanent deletion\n- Custom albums, album assignment, album browsing, and safe album deletion\n- Security settings: change PIN after verifying current PIN, clear decrypted preview cache\n- Screenshot protection and decrypted cache cleanup when the app backgrounds\n- GitHub Actions debug build workflow\n\n## Important current limitations\n- This is still an early development build; no production security audit has been performed.\n- Build verification is pending because the current environment cannot access GitHub or download Gradle.\n- Portable backup encryption core added (AES-256-GCM + PBKDF2-HMAC-SHA256, versioned header, random salt/nonce, recovery-key generator).\n- Backup archive/manifest, SAF export/import UI, recovery-key onboarding and restore orchestration are not yet integrated.\n- Final import verification and security audit remain in development.\n- Import copies media into the vault; original gallery files are not deleted automatically.\n
+
+## Implemented foundation
+- Android Compose dashboard and first-launch PIN gate
+- Keystore-protected PIN verifier and temporary lockout
+- Biometric unlock where supported
+- AES-256-GCM encrypted vault storage
+- Android Photo Picker import
+- Room metadata, private gallery, viewer and Media3 video playback
+- Trash, restore and permanent deletion
+- Custom albums and album assignment
+- Security settings and decrypted preview-cache cleanup
+- Screenshot protection and background cache cleanup
+- GitHub Actions debug build workflow
+- Portable backup crypto envelope using a random recovery key and HKDF-SHA256
+- ZIP archive writer for media streams and JSON manifest, encrypted before export
+- Backup inspection with format and entry-path checks
+
+## Current limitations
+- Early development; production security audit not performed.
+- Build verification remains pending.
+- Backup engine is not yet wired to Room, SAF UI, recovery-key onboarding, or transactional restore.
+- Restore must stage and validate all payloads before committing vault files and metadata.
+- Import does not automatically delete original gallery files.
