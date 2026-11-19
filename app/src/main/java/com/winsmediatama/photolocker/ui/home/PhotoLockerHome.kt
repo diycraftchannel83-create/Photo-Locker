@@ -50,6 +50,7 @@ import com.winsmediatama.photolocker.data.database.PhotoLockerDatabase
 import com.winsmediatama.photolocker.data.database.VaultMediaEntity
 import com.winsmediatama.photolocker.ui.gallery.VaultGalleryScreen
 import com.winsmediatama.photolocker.ui.gallery.VaultTrashScreen
+import com.winsmediatama.photolocker.ui.gallery.VaultAlbumManagerScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
@@ -65,6 +66,7 @@ fun PhotoLockerHome() {
     var importStatus by remember { mutableStateOf("") }
     var showGallery by remember { mutableStateOf(false) }
     var showTrash by remember { mutableStateOf(false) }
+    var showAlbums by remember { mutableStateOf(false) }
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(50)) { uris: List<Uri> ->
         if (uris.isNotEmpty()) {
@@ -106,6 +108,10 @@ fun PhotoLockerHome() {
     }
     if (showTrash) {
         VaultTrashScreen(onBack = { showTrash = false })
+        return
+    }
+    if (showAlbums) {
+        VaultAlbumManagerScreen(onBack = { showAlbums = false })
         return
     }
 
@@ -164,6 +170,10 @@ fun PhotoLockerHome() {
         Button(onClick = { showTrash = true }, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Outlined.DeleteSweep, contentDescription = null)
             Text("  Trash / Restore")
+        }
+        Button(onClick = { showAlbums = true }, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Outlined.Folder, contentDescription = null)
+            Text("  Manage albums")
         }
 
         Text("YOUR ALBUMS", style = MaterialTheme.typography.titleMedium)
