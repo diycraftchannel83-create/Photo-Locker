@@ -24,6 +24,7 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -52,6 +53,7 @@ import com.winsmediatama.photolocker.data.database.VaultAlbumEntity
 import com.winsmediatama.photolocker.ui.gallery.VaultGalleryScreen
 import com.winsmediatama.photolocker.ui.gallery.VaultTrashScreen
 import com.winsmediatama.photolocker.ui.gallery.VaultAlbumManagerScreen
+import com.winsmediatama.photolocker.ui.settings.SecuritySettingsScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
@@ -68,6 +70,7 @@ fun PhotoLockerHome() {
     var showGallery by remember { mutableStateOf(false) }
     var showTrash by remember { mutableStateOf(false) }
     var showAlbums by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
     var selectedAlbum by remember { mutableStateOf<VaultAlbumEntity?>(null) }
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(50)) { uris: List<Uri> ->
@@ -116,6 +119,10 @@ fun PhotoLockerHome() {
         VaultAlbumManagerScreen(onBack = { showAlbums = false }, onOpenAlbum = { album -> selectedAlbum = album; showGallery = true; showAlbums = false })
         return
     }
+    if (showSettings) {
+        SecuritySettingsScreen(onBack = { showSettings = false })
+        return
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(20.dp),
@@ -128,7 +135,7 @@ fun PhotoLockerHome() {
                 Text("Private photo & video vault", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
             }
             Spacer(Modifier.weight(1f))
-            Icon(Icons.Outlined.Settings, contentDescription = "Settings", tint = MaterialTheme.colorScheme.onSurface)
+            IconButton(onClick = { showSettings = true }) { Icon(Icons.Outlined.Settings, contentDescription = "Settings", tint = MaterialTheme.colorScheme.onSurface) }
         }
 
         Card(
