@@ -1,6 +1,7 @@
 package com.winsmediatama.photolocker.ui.gallery
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,7 +39,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 @Composable
-fun VaultAlbumManagerScreen(onBack: () -> Unit) {
+fun VaultAlbumManagerScreen(onBack: () -> Unit, onOpenAlbum: (VaultAlbumEntity) -> Unit) {
     val context = LocalContext.current
     val dao = remember(context) { PhotoLockerDatabase.getInstance(context).vaultMediaDao() }
     val albums by dao.observeAlbums().collectAsStateWithLifecycle(initialValue = emptyList())
@@ -71,7 +72,7 @@ fun VaultAlbumManagerScreen(onBack: () -> Unit) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(albums, key = { it.albumId }) { album ->
                 val count by dao.observeAlbumCount(album.albumId).collectAsStateWithLifecycle(initialValue = 0)
-                Card(Modifier.fillMaxWidth()) {
+                Card(Modifier.fillMaxWidth().clickable { onOpenAlbum(album) }) {
                     Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Outlined.Folder, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Column(Modifier.weight(1f).padding(start = 10.dp)) {
