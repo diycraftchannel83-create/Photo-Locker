@@ -80,7 +80,14 @@ fun SecuritySettingsScreen(onBack: () -> Unit, onOpenBackup: () -> Unit) {
                 Button(onClick = { storage.clearDecryptedCache(); feedback = "Temporary preview cache cleared." }, modifier = Modifier.fillMaxWidth()) { Text("Clear preview cache") }
             }
         }
-        Card(Modifier.fillMaxWidth()) {\n            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {\n                Text("Encrypted backup", style = MaterialTheme.typography.titleMedium)\n                Text("Export encrypted media and albums with a portable Recovery Key. You can verify a backup file, but restore is still under development.", style = MaterialTheme.typography.bodySmall)\n                Button(onClick = onOpenBackup, modifier = Modifier.fillMaxWidth()) { Text("Backup & Recovery Key") }\n            }\n        }\n        if (feedback.isNotBlank()) Text(feedback, color = if (feedback.contains("successfully") || feedback.contains("cleared")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Encrypted backup", style = MaterialTheme.typography.titleMedium)
+                Text("Export encrypted media and albums with a portable Recovery Key. You can verify a backup file, but restore is still under development.", style = MaterialTheme.typography.bodySmall)
+                Button(onClick = onOpenBackup, modifier = Modifier.fillMaxWidth()) { Text("Backup & Recovery Key") }
+            }
+        }
+        if (feedback.isNotBlank()) Text(feedback, color = if (feedback.contains("successfully") || feedback.contains("cleared")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
         Text("Photo Locker stores vault media encrypted in app-private storage. Portable encrypted backup export and backup verification are available; restore is still in development.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
     }
 }
