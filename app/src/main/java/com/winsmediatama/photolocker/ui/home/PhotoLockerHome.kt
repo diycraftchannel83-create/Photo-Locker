@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Settings
@@ -48,6 +49,7 @@ import com.winsmediatama.photolocker.core.storage.VaultStorageManager
 import com.winsmediatama.photolocker.data.database.PhotoLockerDatabase
 import com.winsmediatama.photolocker.data.database.VaultMediaEntity
 import com.winsmediatama.photolocker.ui.gallery.VaultGalleryScreen
+import com.winsmediatama.photolocker.ui.gallery.VaultTrashScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
@@ -62,6 +64,7 @@ fun PhotoLockerHome() {
     val videoCount by db.vaultMediaDao().observeVideoCount().collectAsStateWithLifecycle(initialValue = 0)
     var importStatus by remember { mutableStateOf("") }
     var showGallery by remember { mutableStateOf(false) }
+    var showTrash by remember { mutableStateOf(false) }
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(50)) { uris: List<Uri> ->
         if (uris.isNotEmpty()) {
@@ -99,6 +102,10 @@ fun PhotoLockerHome() {
 
     if (showGallery) {
         VaultGalleryScreen(onBack = { showGallery = false })
+        return
+    }
+    if (showTrash) {
+        VaultTrashScreen(onBack = { showTrash = false })
         return
     }
 
@@ -153,6 +160,10 @@ fun PhotoLockerHome() {
         Button(onClick = { showGallery = true }, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Outlined.Folder, contentDescription = null)
             Text("  Browse private vault ($photoCount photos, $videoCount videos)")
+        }
+        Button(onClick = { showTrash = true }, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Outlined.DeleteSweep, contentDescription = null)
+            Text("  Trash / Restore")
         }
 
         Text("YOUR ALBUMS", style = MaterialTheme.typography.titleMedium)
