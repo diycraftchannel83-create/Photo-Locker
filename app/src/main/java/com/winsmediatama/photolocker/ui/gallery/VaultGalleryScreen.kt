@@ -17,6 +17,8 @@ import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Card
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.winsmediatama.photolocker.core.storage.VaultStorageManager
 import com.winsmediatama.photolocker.data.database.PhotoLockerDatabase
 import com.winsmediatama.photolocker.data.database.VaultMediaEntity
+import com.winsmediatama.photolocker.data.database.VaultAlbumEntity
 import androidx.compose.material3.Button
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.window.Dialog
@@ -55,8 +58,10 @@ fun VaultGalleryScreen(onBack: () -> Unit) {
     val dao = remember(context) { PhotoLockerDatabase.getInstance(context).vaultMediaDao() }
     val storage = remember(context) { VaultStorageManager(context) }
     val media by dao.observeAll().collectAsStateWithLifecycle(initialValue = emptyList())
+    val albums by dao.observeAlbums().collectAsStateWithLifecycle(initialValue = emptyList())
     var viewing by remember { mutableStateOf<Pair<VaultMediaEntity, File>?>(null) }
     var message by remember { mutableStateOf("") }
+    var assigningMedia by remember { mutableStateOf<VaultMediaEntity?>(null) 
 
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -81,6 +86,7 @@ fun VaultGalleryScreen(onBack: () -> Unit) {
                                 Text(item.displayName, style = MaterialTheme.typography.titleSmall, maxLines = 1)
                                 Text("${item.mediaKind.lowercase()} • encrypted", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
                             }
+                            TextButton(onClick = { assigningMedia = item }) { Text("Album") }
                             IconButton(onClick = { dao.moveToTrash(item.vaultId, System.currentTimeMillis()) }) {
                                 Icon(Icons.Outlined.Delete, contentDescription = "Move to trash", tint = MaterialTheme.colorScheme.error)
                             }
@@ -105,6 +111,23 @@ fun VaultGalleryScreen(onBack: () -> Unit) {
                 }
             }
         }
+    }
+
+    assigningMedia?.let { item ->
+        AlertDialog(
+            onDismissRequest = { assigningMedia = null },
+            title = { Text("Assign to album") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(onClick = { dao.assignToAlbum(item.vaultId, null); assigningMedia = null }) { Text("Unassigned") }
+                    albums.forEach { album ->
+                        TextButton(onClick = { dao.assignToAlbum(item.vaultId, album.albumId); assigningMedia = null }) { Text(album.name) }
+                    }
+                    if (albums.isEmpty()) Text("Create albums from the dashboard first.")
+                }
+            },
+            confirmButton = { TextButton(onClick = { assigningMedia = null }) { Text("Close") } }
+        )
     }
 
     viewing?.let { (item, tempFile) ->
