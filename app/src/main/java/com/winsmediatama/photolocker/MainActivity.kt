@@ -3,6 +3,8 @@ package com.winsmediatama.photolocker
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.WindowManager
+import com.winsmediatama.photolocker.core.storage.VaultStorageManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,6 +23,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
         setContent {
             PhotoLockerTheme {
                 if (unlocked) PhotoLockerHome() else PinGate(context = this) { unlocked = true }
@@ -38,5 +41,6 @@ class MainActivity : ComponentActivity() {
         // Brief grace period supports returning from Android system media picker.
         lockHandler.removeCallbacks(delayedLock)
         lockHandler.postDelayed(delayedLock, 15_000L)
+        VaultStorageManager(this).clearDecryptedCache()
     }
 }
