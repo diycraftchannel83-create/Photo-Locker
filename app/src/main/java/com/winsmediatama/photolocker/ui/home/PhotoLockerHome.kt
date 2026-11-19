@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.winsmediatama.photolocker.core.storage.VaultStorageManager
 import com.winsmediatama.photolocker.data.database.PhotoLockerDatabase
 import com.winsmediatama.photolocker.data.database.VaultMediaEntity
+import com.winsmediatama.photolocker.ui.gallery.VaultGalleryScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
@@ -94,6 +95,11 @@ fun PhotoLockerHome() {
         }
     }
 
+    if (showGallery) {
+        VaultGalleryScreen(onBack = { showGallery = false })
+        return
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
@@ -138,6 +144,10 @@ fun PhotoLockerHome() {
             Text("  Import media")
         }
         if (importStatus.isNotBlank()) Text(importStatus, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        Button(onClick = { showGallery = true }, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Outlined.Folder, contentDescription = null)
+            Text("  Browse private vault ($photoCount photos, $videoCount videos)")
+        }
 
         Text("YOUR ALBUMS", style = MaterialTheme.typography.titleMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
