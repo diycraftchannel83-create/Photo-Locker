@@ -173,7 +173,6 @@ fun PortableBackupScreen(onBack: () -> Unit) {
                                         committedFiles.add(encryptedFile)\n                                        FileInputStream(payloads.getValue(media.archivePath)).use { input ->
                                             FileOutputStream(encryptedFile).use { output -> crypto.encrypt(input, output) }
                                         }
-                                        committedFiles.add(encryptedFile)
                                         VaultMediaEntity(
                                             vaultId = newId, encryptedFileName = encryptedName,
                                             displayName = media.displayName, mimeType = media.mimeType,
