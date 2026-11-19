@@ -19,6 +19,11 @@ class MainActivity : ComponentActivity() {
     private var unlocked by mutableStateOf(false)
     private val lockHandler = Handler(Looper.getMainLooper())
     private val delayedLock = Runnable { unlocked = false }
+    private var systemPickerPending = false
+
+    fun markSystemPickerLaunched() {
+        systemPickerPending = true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,13 +39,14 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         lockHandler.removeCallbacks(delayedLock)
+        systemPickerPending = false
     }
 
     override fun onStop() {
         super.onStop()
         // Brief grace period supports returning from Android system media picker.
         lockHandler.removeCallbacks(delayedLock)
-        lockHandler.postDelayed(delayedLock, 15_000L)
+        if (!systemPickerPending) lockHandler.postDelayed(delayedLock, 15_000L)
         VaultStorageManager(this).clearDecryptedCache()
     }
 }
