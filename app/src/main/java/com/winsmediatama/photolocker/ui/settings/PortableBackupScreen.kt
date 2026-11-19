@@ -202,7 +202,7 @@ fun PortableBackupScreen(onBack: () -> Unit) {
                     } else message = "Recovery Key required."
                 }) { Text("Restore") }
             },
-            dismissButton = { TextButton(onClick = { showRestoreConfirm = false; pendingRestoreUri = null }) { Text("Cancel") }
+            dismissButton = { TextButton(onClick = { showRestoreConfirm = false; pendingRestoreUri = null }) { Text("Cancel") } }
         )
     }
 
